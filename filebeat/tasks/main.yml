@@ -1,0 +1,62 @@
+---
+# tasks file for filebeat
+
+# filebeat install with the elasticsearch repository.
+
+- name: Import a key from a url
+  ansible.builtin.rpm_key:
+    state: present
+    key: https://packages.elastic.co/GPG-KEY-elasticsearch
+  become: yes
+
+- name: Adding elastic.co repo to local yum repository
+  ansible.builtin.yum_repository:
+    name: beats
+    description: Repo for elastic
+    baseurl: "{{baseurl}}"
+    gpgcheck: yes
+    gpgkey: https://packages.elastic.co/GPG-KEY-elasticsearch
+  become: yes
+
+- name: Install filebeat
+  ansible.builtin.package:
+    name: filebeat
+    state: present
+    update_cache: yes
+  become: yes
+
+# Configuration of filebeat
+
+- name: Setting up filebeat configuration
+  ansible.builtin.template:
+    src: "filebeat.yml.j2"
+    dest: /etc/filebeat/filebeat.yml
+    backup: true
+  become: yes
+
+- name: checking if module file exist
+  ansible.builtin.stat:
+    path: "{{module_path}}"
+  register: check_modulefile
+
+- name: Enable {{ module }} module
+  ansible.builtin.copy:
+    remote_src: yes
+    src: "{{module_path}}"
+    dest: /etc/filebeat/modules.d/{{module}}.yml
+  become: yes
+  when: check_modulefile.stat.exists
+
+- name: remove the old {{ module }} module file
+  ansible.builtin.file:
+    path: "{{module_path}}"
+    state: absent
+  become: yes
+  when: check_modulefile.stat.exists
+
+- name: start and enable filebeat
+  ansible.builtin.systemd:
+    state: started
+    enabled: yes
+    name: filebeat
+  become: yes

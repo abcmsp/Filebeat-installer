@@ -1,0 +1,16 @@
+---
+# defaults file for filebeat
+
+# type: default
+
+baseurl: https://artifacts.elastic.co/packages/7.x/yum
+
+# oss_baseurl: https://artifacts.elastic.co/packages/oss-7.x/yum
+
+# baseurl: "{{ '{{oss_baseurl}}' if '{{type}}' == 'oss' else '{{default_baseurl}}' }}"
+
+module: system
+
+module_path: /etc/filebeat/modules.d/{{module}}.yml.disabled
+
+# logstash-host: "{{ '{{sdpinfprdlog01.ccta.dk}}' if '{{env}}' == 'prod' else '{{default_baseurl}}' }}"
