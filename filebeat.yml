@@ -3,12 +3,9 @@
 - name: filebeat playbook
 
   hosts:
-  - tst
+  - <add hosts>
 
   roles:
-    - role: local-download-filebeat-rpm
-      vars:
-        filebeatpackage: filebeat-7.15.1-x86_64.rpm
     - role: filebeat
       vars:
         filebeatpackage: filebeat-7.15.1-x86_64.rpm
